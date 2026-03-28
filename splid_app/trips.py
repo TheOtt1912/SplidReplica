@@ -7,7 +7,7 @@ from flask import(
 
 bp = Blueprint('trips',__name__,url_prefix=('/trips'))
 
-bp.route('/add',methods=('POST','GET'))
+@bp.route('/add',methods=('POST','GET'))
 @login_required
 def new_trip():
     if request.method == 'POST':
@@ -31,8 +31,8 @@ def new_trip():
             trip_id = cursor.lastrowid
             add_users_into_trip(user_ids, trip_id)
             db.commit() #probs better to only commit here. But ive commited inside the sub function too
-        users = get_users()
-        return render_template('trips/add.html', users = users)
+    users = get_users()
+    return render_template('trips/add.html', users = users)
 
 
 def add_users_into_trip(users,trip_id):

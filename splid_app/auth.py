@@ -29,7 +29,7 @@ def register(): #Register view function
         if error is None:
             try:
                 db.execute(
-                    """ INSERT INTO users (name, password, email) VALUES (?,?, ?) """, (name, email, generate_password_hash(password)),
+                    """ INSERT INTO users (name, email, password) VALUES (?,?, ?) """, (name, email, generate_password_hash(password)),
                 )
                 db.commit()
             except db.IntegrityError:
@@ -57,7 +57,7 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            return redirect(url_for('index'))
+            return redirect(url_for('trips.new_trip')) #url_for takes the blueprint name and function name, not the URL path.
         flash(error)
     return render_template('auth/login.html')
 
@@ -78,7 +78,7 @@ def load_logged_in_user():
 @bp.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for())
+    return redirect(url_for('auth.login'))
 
 def login_required(view):
     @functools.wraps(view)

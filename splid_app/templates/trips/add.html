@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}New Trip — Splid Replica{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">New Trip</h1>
+  <p class="page-subtitle">Who's coming along?</p>
+</div>
+
+<div class="card">
+  <form method="post">
+
+    <div class="form-group">
+      <label for="trip_name">Trip Name</label>
+      <input type="text" id="trip_name" name="trip_name" placeholder="e.g. Bali 2026" required>
+    </div>
+
+    <div class="form-group">
+      <label>Add People</label>
+      <div class="user-list">
+        {% for user in users %}
+          {% if user['id'] != g.user['id'] %}
+          <label class="user-option">
+            <input type="checkbox" name="user_ids" value="{{ user['id'] }}">
+            <span class="user-name">{{ user['name'] }}</span>
+          </label>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary">Create Trip 🌴</button>
+
+  </form>
+</div>
+{% endblock %}
+
+{% block back_button %}
+<div class="back-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+</div>
+{% endblock %}

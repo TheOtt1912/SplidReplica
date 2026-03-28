@@ -1,5 +1,6 @@
 import os
-from flask import Flask
+from flask import Flask, session
+
 
 #The init is the file in which we 'create the app'. As the docs explained, this is the app factory.
 def create_app(test_config=None):
@@ -20,6 +21,19 @@ def create_app(test_config=None):
 
     @app.route('/hello')
     def hello():
+        session['user_id'] = 1
         return 'This is splid replica'
     
+    from . import db
+    db.init_app(app)
+
+    from . import trips
+    app.register_blueprint(trips.bp)
+
+    from . import users
+    app.register_blueprint(users.bp)
+
+    from . import auth
+    app.register_blueprint(auth.bp)
+
     return app
