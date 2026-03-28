@@ -45,10 +45,10 @@ def add_users_into_trip(users,trip_id):
 
 def list_trips(user_id):
     db = get_db()
-    trip_list = db.execute('''SELECT id, trip_name, created
-               FROM trips
-               WHERE creator_id = ?''', (user_id,)
-               ).fetchall()
+    trip_list = db.execute('''SELECT trips.id, trips.trip_name, trips.created
+               FROM usersInTrip
+               JOIN trips on trips.id = usersInTrip.trip_id
+               WHERE usersInTrip.user_id = ?''', (user_id,)).fetchall()
     return trip_list
     
 def get_users_in_trip(trip_id):
