@@ -50,7 +50,7 @@ def login():
         ).fetchone()
 
         if user is None:
-            error = 'Incorrect username.'
+            error = 'Incorrect email.'
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
         
@@ -79,8 +79,7 @@ def load_logged_in_user():
 def logout():
     session.clear()
     return redirect(url_for())
-'''
-MAYBE ILL USE THIS
+
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
@@ -88,4 +87,3 @@ def login_required(view):
             return redirect(url_for('auth.login'))
         return view(**kwargs)
     return wrapped_view
-    '''
