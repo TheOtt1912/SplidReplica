@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Home — Splid Replica{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Your trips</h1>
+  <p class="page-subtitle">Pick a trip or start a new one.</p>
+</div>
+
+<div class="action-buttons">
+  <a href="{{ url_for('trips.new_trip') }}" class="btn-primary btn-inline">New trip</a>
+</div>
+
+{% if trips %}
+  <div class="trip-list">
+    {% for trip in trips %}
+      <a href="{{ url_for('trips.trip_page', id=trip['id']) }}" class="trip-card">
+        <span class="trip-card-avatar">{{ trip['trip_name'][0] if trip['trip_name'] else '?' }}</span>
+        <div class="trip-card-info">
+          <span class="trip-card-name">{{ trip['trip_name'] }}</span>
+          <span class="trip-card-date">{{ trip['created'] }}</span>
+        </div>
+        <span class="trip-card-arrow">→</span>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">
+    <p>No trips yet. Create one to split expenses with your group.</p>
+  </div>
+{% endif %}
+{% endblock %}

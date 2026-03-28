@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Trip — Splid Replica{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Trip Details</h1>
+  <p class="page-subtitle">People on this trip</p>
+</div>
+
+<div class="card">
+  {% if users %}
+    <ul class="member-list">
+      {% for user in users %}
+        <li class="member-item">
+          <span class="member-avatar">{{ user['name'][0] }}</span>
+          <span class="member-name">{{ user['name'] }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">No members found for this trip.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block back_button %}
+<div class="back-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+</div>
+{% endblock %}

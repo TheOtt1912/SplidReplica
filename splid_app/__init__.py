@@ -1,5 +1,5 @@
 import os
-from flask import Flask, session
+from flask import Flask, session, redirect, url_for
 
 
 #The init is the file in which we 'create the app'. As the docs explained, this is the app factory.
@@ -21,7 +21,6 @@ def create_app(test_config=None):
 
     @app.route('/hello')
     def hello():
-        session['user_id'] = 1
         return 'This is splid replica'
     
     from . import db
@@ -35,5 +34,12 @@ def create_app(test_config=None):
 
     from . import auth
     app.register_blueprint(auth.bp)
+
+    from . import home
+    app.register_blueprint(home.bp)
+
+    @app.route('/')
+    def index():
+        return redirect(url_for('home.home_page'))
 
     return app

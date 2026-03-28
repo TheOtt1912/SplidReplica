@@ -57,7 +57,7 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            return redirect(url_for('trips.new_trip')) #url_for takes the blueprint name and function name, not the URL path.
+            return redirect(url_for('home.home_page')) #url_for takes the blueprint name and function name, not the URL path.
         flash(error)
     return render_template('auth/login.html')
 
@@ -87,3 +87,4 @@ def login_required(view):
             return redirect(url_for('auth.login'))
         return view(**kwargs)
     return wrapped_view
+

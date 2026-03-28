@@ -42,3 +42,29 @@ def add_users_into_trip(users,trip_id):
         )
     #LEARNING - moved the commit outside loop so it's more efficient
     db.commit()
+
+def list_trips(user_id):
+    db = get_db()
+    trip_list = db.execute('''SELECT id, trip_name, created
+               FROM trips
+               WHERE creator_id = ?''', (user_id,)
+               ).fetchall()
+    return trip_list
+    
+def get_users_in_trip(trip_id):
+    db = get_db()
+    users_in_trip = db.execute(''' 
+               SELECT users.name, users.id
+               FROM usersInTrip
+               JOIN users on users.id = usersInTrip.user_id
+               WHERE usersInTrip.trip_id = ? ''', (trip_id,)).fetchall()
+    return users_in_trip
+
+#Need to make it impossible to view other peoples trips
+@bp.route('/<int:id>',methods=('GET', 'POST'))
+@login_required
+def trip_page(id):
+    trip_id = id
+    users = get_users_in_trip(trip_id)
+
+    return render_template('trips/trip.html', users=users)
