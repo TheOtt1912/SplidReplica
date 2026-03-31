@@ -60,11 +60,53 @@ def get_users_in_trip(trip_id):
                WHERE usersInTrip.trip_id = ? ''', (trip_id,)).fetchall()
     return users_in_trip
 
-#Need to make it impossible to view other peoples trips
+#Need to make it impossible to view other peoples trips - THIS WAS DONE
 @bp.route('/<int:id>',methods=('GET', 'POST'))
 @login_required
 def trip_page(id):
     trip_id = id
     users = get_users_in_trip(trip_id)
 
-    return render_template('trips/trip.html', users=users)
+    return render_template('trips/trip.html', users=users, id = trip_id)
+
+
+######################## TRANSACTIONS ###########################
+
+@bp.route('/<int:id>/tx_add',methods=('POST','GET'))
+@login_required
+def new_transaction(id):
+    if request.method == 'POST':
+        amount = request.form['amount']
+        title = request.form['title']
+        user_ids = request.form.getlist('user_ids')
+        error = None
+
+        if not amount:
+            error = 'Please enter an amount.'
+        elif not title:
+            error = 'Please enter a title'
+        elif not user_ids:
+            error = 'Please select atleast one person to split with.'
+        if error is not None:
+            flash(error)
+        
+        else:
+            db = get_db()
+            cursor = db.execute(''' INSERT INTO transactions (title, amount, trip_id, user_id) VALUES (?,?,?,?)''',
+                                (title,amount, id, g.user['id'])
+                                )
+            transaction_id = cursor.lastrowid
+            add_debts(transaction_id,amount,user_ids)
+            db.commit()
+        
+        return redirect(url_for('trips.trip_page', id=id))
+    users = get_users_in_trip(id)
+    return render_template('trips/tx_add.html',users=users)
+
+def add_debts(transaction_id,amount,users):
+    num_of_users = len(users) + 1 #for the creator who the bill is also split by
+    debt_amount = (int(amount) / num_of_users)
+    db = get_db()
+    for user in users:
+        db.execute(''' INSERT INTO debts (transaction_id, owed_by_id, amount,status) VALUES (?,?,?,?)''',(transaction_id,user,debt_amount,'owing')
+        )

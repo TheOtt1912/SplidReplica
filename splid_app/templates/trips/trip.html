@@ -8,6 +8,10 @@
   <p class="page-subtitle">People on this trip</p>
 </div>
 
+<div class="action-buttons">
+  <a href="{{ url_for('trips.new_transaction', id=id) }}" class="btn-primary btn-inline">+ Add Transaction</a>
+</div>
+
 <div class="card">
   {% if users %}
     <ul class="member-list">
