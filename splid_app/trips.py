@@ -1,9 +1,12 @@
+#Fun Improvements: 1) Creator a decorator for trip_member_required , rather than having this func thats constantly called
+
 from splid_app.db import  get_db
 from splid_app.auth import login_required
 from splid_app.users import get_users
 from flask import( 
     Blueprint, g, flash, redirect, render_template, request, url_for
 )
+from werkzeug.exceptions import abort
 
 bp = Blueprint('trips',__name__,url_prefix=('/trips'))
 
@@ -50,7 +53,7 @@ def list_trips(user_id):
                JOIN trips on trips.id = usersInTrip.trip_id
                WHERE usersInTrip.user_id = ?''', (user_id,)).fetchall()
     return trip_list
-    
+
 def get_users_in_trip(trip_id):
     db = get_db()
     users_in_trip = db.execute(''' 
@@ -60,21 +63,48 @@ def get_users_in_trip(trip_id):
                WHERE usersInTrip.trip_id = ? ''', (trip_id,)).fetchall()
     return users_in_trip
 
-#Need to make it impossible to view other peoples trips - THIS WAS DONE
+
+def get_trip(id, check_user=True):
+    db = get_db()
+    trip = db.execute(''' SELECT * FROM trips
+                   WHERE id = ?''',(id,)).fetchone()
+    is_in_trip = is_user_in_trip(id)
+    
+    if trip is None:
+        abort(404, f'Trip with id {id}, doesnt exist.')
+        
+    if check_user == True and is_in_trip == False:
+        abort(403)
+    
+    else:
+        return trip
+
+
+def is_user_in_trip(id):
+    users_in_trip = get_users_in_trip(id)
+    
+    for user in users_in_trip:
+        if g.user['id'] == user['id']:
+            return True
+    return False
+
+######################## TripPage ###########################
+
+
 @bp.route('/<int:id>',methods=('GET', 'POST'))
 @login_required
 def trip_page(id):
-    trip_id = id
-    users = get_users_in_trip(trip_id)
+    get_trip(id)
+    users = get_users_in_trip(id)
 
-    return render_template('trips/trip.html', users=users, id = trip_id)
-
+    return render_template('trips/trip.html', users=users, id = id)
 
 ######################## TRANSACTIONS ###########################
 
 @bp.route('/<int:id>/tx_add',methods=('POST','GET'))
 @login_required
 def new_transaction(id):
+    get_trip(id)
     if request.method == 'POST':
         amount = request.form['amount']
         title = request.form['title']
@@ -110,3 +140,11 @@ def add_debts(transaction_id,amount,users):
     for user in users:
         db.execute(''' INSERT INTO debts (transaction_id, owed_by_id, amount,status) VALUES (?,?,?,?)''',(transaction_id,user,debt_amount,'owing')
         )
+
+'''
+#Gonna make a dict baby
+def owed_to_user_in_trip(trip_id,users):
+    
+
+def user_owes_in_trip(trip_id,users):
+'''
