@@ -96,8 +96,11 @@ def is_user_in_trip(id):
 def trip_page(id):
     get_trip(id)
     users = get_users_in_trip(id)
+    user_ids = [user['id'] for user in users]
 
-    return render_template('trips/trip.html', users=users, id = id)
+    ledger = owed_to_user_in_trip(id, user_ids)
+
+    return render_template('trips/trip.html', users=users, id = id, ledger = ledger)
 
 ######################## TRANSACTIONS ###########################
 
@@ -141,10 +144,21 @@ def add_debts(transaction_id,amount,users):
         db.execute(''' INSERT INTO debts (transaction_id, owed_by_id, amount,status) VALUES (?,?,?,?)''',(transaction_id,user,debt_amount,'owing')
         )
 
-'''
 #Gonna make a dict baby
-def owed_to_user_in_trip(trip_id,users):
-    
+#The result should be dictionary with each user_id who owes me, and their amount owed to me
+#eg. {1:90.0, 2:300.0}
+def owed_to_user_in_trip(trip_id,user_ids):
+    db = get_db()
+    owed_to_ledger = {}
 
-def user_owes_in_trip(trip_id,users):
-'''
+    for user in user_ids:
+       x = db.execute(''' SELECT SUM(debts.amount)
+                   FROM debts
+                   JOIN transactions on transactions.id = debts.transaction_id
+                   WHERE transactions.trip_id = ? AND transactions.user_id = ? AND debts.owed_by_id = ? ''', (trip_id,g.user['id'], user)
+        ).fetchone()
+       owed_to_ledger[user] = x[0]
+    
+    return owed_to_ledger
+
+#def user_owes_in_trip(trip_id,users)

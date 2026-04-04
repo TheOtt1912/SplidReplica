@@ -13,19 +13,42 @@
 </div>
 
 <div class="card">
+  <h2 class="section-title">Who owes you</h2>
   {% if users %}
     <ul class="member-list">
       {% for user in users %}
+        {% if user['id'] != g.user['id'] %}
         <li class="member-item">
           <span class="member-avatar">{{ user['name'][0] }}</span>
-          <span class="member-name">{{ user['name'] }}</span>
+          <div class="member-info">
+            <span class="member-name">{{ user['name'] }}</span>
+            {% if ledger[user['id']] %}
+              <span class="member-owes">owes you {{ ledger[user['id']] }}</span>
+            {% else %}
+              <span class="member-settled">all settled</span>
+            {% endif %}
+          </div>
         </li>
+        {% endif %}
       {% endfor %}
     </ul>
   {% else %}
     <p class="empty">No members found for this trip.</p>
   {% endif %}
 </div>
+
+<div class="card" style="margin-top: 16px;">
+  <h2 class="section-title">All members</h2>
+  <ul class="member-list">
+    {% for user in users %}
+      <li class="member-item">
+        <span class="member-avatar">{{ user['name'][0] }}</span>
+        <span class="member-name">{{ user['name'] }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
 {% endblock %}
 
 {% block back_button %}
