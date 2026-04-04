@@ -99,8 +99,9 @@ def trip_page(id):
     user_ids = [user['id'] for user in users]
 
     ledger = owed_to_user_in_trip(id, user_ids)
+    ledger2 = user_owes_in_trip(id, user_ids)
 
-    return render_template('trips/trip.html', users=users, id = id, ledger = ledger)
+    return render_template('trips/trip.html', users=users, id = id, ledger = ledger, ledger2 = ledger2)
 
 ######################## TRANSACTIONS ###########################
 
@@ -155,10 +156,24 @@ def owed_to_user_in_trip(trip_id,user_ids):
        x = db.execute(''' SELECT SUM(debts.amount)
                    FROM debts
                    JOIN transactions on transactions.id = debts.transaction_id
-                   WHERE transactions.trip_id = ? AND transactions.user_id = ? AND debts.owed_by_id = ? ''', (trip_id,g.user['id'], user)
+                   WHERE transactions.trip_id = ? AND transactions.user_id = ? AND debts.owed_by_id = ? ''', 
+                   (trip_id,g.user['id'], user)
         ).fetchone()
        owed_to_ledger[user] = x[0]
     
     return owed_to_ledger
 
-#def user_owes_in_trip(trip_id,users)
+def user_owes_in_trip(trip_id,user_ids):
+    db = get_db()
+    user_owes_ledger = {}
+
+    for user in user_ids:
+        x = db.execute(''' SELECT SUM(debts.amount)
+                       FROM debts
+                       JOIN transactions on transactions.id = debts.transaction_id
+                       WHERE transactions.trip_id = ? AND transactions.user_id = ? AND debts.owed_by_id = ?''',
+                       (trip_id, user,g.user['id'] )
+                       ).fetchone()
+        user_owes_ledger[user] = x[0]
+    
+    return user_owes_ledger

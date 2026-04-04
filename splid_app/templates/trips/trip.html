@@ -12,29 +12,58 @@
   <a href="{{ url_for('trips.new_transaction', id=id) }}" class="btn-primary btn-inline">+ Add Transaction</a>
 </div>
 
-<div class="card">
-  <h2 class="section-title">Who owes you</h2>
-  {% if users %}
-    <ul class="member-list">
-      {% for user in users %}
-        {% if user['id'] != g.user['id'] %}
-        <li class="member-item">
-          <span class="member-avatar">{{ user['name'][0] }}</span>
-          <div class="member-info">
-            <span class="member-name">{{ user['name'] }}</span>
-            {% if ledger[user['id']] %}
-              <span class="member-owes">owes you {{ ledger[user['id']] }}</span>
-            {% else %}
-              <span class="member-settled">all settled</span>
-            {% endif %}
-          </div>
-        </li>
-        {% endif %}
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p class="empty">No members found for this trip.</p>
-  {% endif %}
+<div class="ledger-grid">
+
+  <div class="card">
+    <h2 class="section-title">They owe you 💰</h2>
+    {% if users %}
+      <ul class="member-list">
+        {% for user in users %}
+          {% if user['id'] != g.user['id'] %}
+          <li class="member-item">
+            <span class="member-avatar">{{ user['name'][0] }}</span>
+            <div class="member-info">
+              <span class="member-name">{{ user['name'] }}</span>
+              {% if ledger.get(user['id']) %}
+                <span class="member-owes">owes you {{ ledger.get(user['id']) }}</span>
+              {% else %}
+                <span class="member-settled">all settled</span>
+              {% endif %}
+            </div>
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">No members found.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">You owe them 😬</h2>
+    {% if users %}
+      <ul class="member-list">
+        {% for user in users %}
+          {% if user['id'] != g.user['id'] %}
+          <li class="member-item">
+            <span class="member-avatar">{{ user['name'][0] }}</span>
+            <div class="member-info">
+              <span class="member-name">{{ user['name'] }}</span>
+              {% if ledger2.get(user['id']) %}
+                <span class="member-owes-you">you owe {{ ledger2.get(user['id']) }}</span>
+              {% else %}
+                <span class="member-settled">all settled</span>
+              {% endif %}
+            </div>
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">No members found.</p>
+    {% endif %}
+  </div>
+
 </div>
 
 <div class="card" style="margin-top: 16px;">
