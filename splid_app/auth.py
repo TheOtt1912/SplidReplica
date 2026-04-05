@@ -1,5 +1,5 @@
 import functools
-
+import logging
 from flask import(
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from splid_app.db import  get_db
 
 bp = Blueprint('auth',__name__, url_prefix='/auth')
+logger = logging.getLogger(__name__)
 
 @bp.route('/register', methods=('GET','POST'))
 def register(): #Register view function
@@ -32,8 +33,10 @@ def register(): #Register view function
                     """ INSERT INTO users (name, email, password) VALUES (?,?, ?) """, (name, email, generate_password_hash(password)),
                 )
                 db.commit()
+                logger.info(f'New user registered: {email}')
             except db.IntegrityError:
                 error = f"User {email} is already registered."
+                logger.warning(f'Registration failed - email already exists: {email}')
             else:
                 return redirect(url_for('auth.login'))
         flash(error)
@@ -74,7 +77,7 @@ def load_logged_in_user():
                                   ).fetchone()
 
 
-# TODO add the URL for. Its basically needed for this whole page
+#TODO add the URL for. Its basically needed for this whole page
 @bp.route('/logout')
 def logout():
     session.clear()

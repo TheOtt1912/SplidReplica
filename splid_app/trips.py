@@ -1,5 +1,3 @@
-#Fun Improvements: 1) Creator a decorator for trip_member_required , rather than having this func thats constantly called
-
 from splid_app.db import  get_db
 from splid_app.auth import login_required
 from splid_app.users import get_users
@@ -7,8 +5,10 @@ from flask import(
     Blueprint, g, flash, redirect, render_template, request, url_for
 )
 from werkzeug.exceptions import abort
+import logging
 
 bp = Blueprint('trips',__name__,url_prefix=('/trips'))
+logger = logging.getLogger(__name__)
 
 @bp.route('/add',methods=('POST','GET'))
 @login_required
@@ -34,6 +34,8 @@ def new_trip():
             trip_id = cursor.lastrowid
             add_users_into_trip(user_ids, trip_id)
             db.commit() #probs better to only commit here. But ive commited inside the sub function too
+            logger.info(f'''New trip created: TRIP ID {trip_id}, USER ID {g.user['id']} ''')
+            return redirect(url_for('home.home_page'))
     users = get_users()
     return render_template('trips/add.html', users = users)
 

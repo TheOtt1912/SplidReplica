@@ -1,5 +1,15 @@
 import os
 from flask import Flask, session, redirect, url_for
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('splid.log'),
+        logging.StreamHandler()
+    ]
+)
 
 
 #The init is the file in which we 'create the app'. As the docs explained, this is the app factory.
@@ -43,3 +53,4 @@ def create_app(test_config=None):
         return redirect(url_for('home.home_page'))
 
     return app
+
