@@ -94,14 +94,17 @@ def is_user_in_trip(id):
 @bp.route('/<int:id>',methods=('GET', 'POST'))
 @login_required
 def trip_page(id):
-    get_trip(id)
+    trip_info = get_trip(id)
     users = get_users_in_trip(id)
     user_ids = [user['id'] for user in users]
 
     ledger = owed_to_user_in_trip(id, user_ids)
     ledger2 = user_owes_in_trip(id, user_ids)
+    trip_txs = get_trip_transactions(id)
 
-    return render_template('trips/trip.html', users=users, id = id, ledger = ledger, ledger2 = ledger2)
+    return render_template('trips/trip.html', users=users, 
+                           id = id, ledger = ledger, ledger2 = ledger2, trip_txs = trip_txs,
+                           trip_info = trip_info)
 
 ######################## TRANSACTIONS ###########################
 
@@ -177,3 +180,15 @@ def user_owes_in_trip(trip_id,user_ids):
         user_owes_ledger[user] = x[0]
     
     return user_owes_ledger
+
+def get_trip_transactions(trip_id):
+    db = get_db()
+    trip_txs = db.execute(''' SELECT transactions.* , debts.owed_by_id, users.name
+                          FROM transactions
+                          JOIN debts on debts.transaction_id = transactions.id
+                          JOIN users on users.id = transactions.user_id
+                          WHERE transactions.trip_id = ?
+                          ORDER BY transactions.created DESC
+                          ''',(trip_id,)
+                          ).fetchall()
+    return trip_txs
